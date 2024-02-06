@@ -10,15 +10,10 @@ def sync():
 serPort = serial.Serial("/dev/ttyUSB0", 12000000, timeout=None, rtscts=True, dsrdtr=False)
 
 firstTime = True
-
-while True:
-    data = sys.stdin.buffer.read(32768)
-    if (len(data) == 0):
-        break
-    if firstTime:
-        sync()
-    serPort.write(data)
-    firstTime = False
+with open('./test.png', 'rb') as img_file:
+    img_data = img_file.read()
+sync()
+serPort.write(img_data)
 
 serPort.flush()
 serPort.close()
