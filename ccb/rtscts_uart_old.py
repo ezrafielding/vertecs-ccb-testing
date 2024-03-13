@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import serial
+import time
 
 def sync():
     while serPort.cts == True:
@@ -36,9 +37,11 @@ def packVCDU(mdpuPackets, spacecraft_id=0x55, vcid=0, version=1):
 # Serial port configuration:
 serPort = serial.Serial("/dev/ttyUSB0", 12000000, timeout=None, rtscts=True, dsrdtr=False)
 serPort.flush()
+xbandConfig = serial.Serial("/dev/ttyAMA3", 19200)
+# xbandConfig.write(b'B0A\r')
 print('Serial Port Open!')
 
-with open('./test.png', 'rb') as img_file:
+with open('../examples/small_test.jpg', 'rb') as img_file:
     print('Reading File...')
     img_data = img_file.read()
 
@@ -48,11 +51,16 @@ mdpu = packMDPU(img_data, 1, 27, 'JG6YBW', 'JG6YNH')
 vcdu = packVCDU(mdpu)
 print('Total Packets: ', len(mdpu))
 print('Begin Data Transfer...')
+start = time.time()
+# xbandConfig.write(b'B64\r')
 sync()
 for packet in vcdu:
     serPort.write(packet)
     sync()
+end = time.time()
 print('Transfer Complete!')
+print('Total transfer time: ', end-start)
+# xbandConfig.write(b'B0A\r')
 
 serPort.flush()
 serPort.close()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import serial
-from time import sleep
+import time
 import ftdi1 as ftdi
 
 import atexit
@@ -225,12 +225,15 @@ mdpu = packMDPU(img_data, 1, 27, 'JG6YBW', 'JG6YNH')
 vcdu = packVCDU(mdpu)
 print('Total Packets: ', len(mdpu))
 print('Begin Data Transfer...')
+
+start = time.time()
 xbandConfig.write(b'B64\r')
 sync()
 for packet in vcdu:
     xbandData.write(packet)
+end = time.time()
 print('Transfer Complete!')
-
+print('Total transfer time: ', end-start)
 # serPort.flush()
 # serPort.close()
 xbandConfig.write(b'B0A\r')
